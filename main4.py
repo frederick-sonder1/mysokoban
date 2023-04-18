@@ -1,7 +1,11 @@
 #!/usr/bin/env python3 # -- coding: utf-8 --
 
 import pygame, pygame.locals 
-# On initialise pygame pygame.init() taille_fenetre = (600, 400) fenetre_rect = pygame.Rect((0, 0), taille_fenetre) screen_surface = pygame.display.set_mode(taille_fenetre)
+# On initialise pygame 
+pygame.init() 
+taille_fenetre = (600, 400) 
+fenetre_rect = pygame.Rect((0, 0), taille_fenetre) 
+screen = pygame.display.set_mode(taille_fenetre)
 
 BLEU_NUIT = ( 5, 5, 30) 
 VERT = ( 0, 255, 0) 
@@ -10,7 +14,13 @@ JAUNE = (255, 255, 0)
 timer = pygame.time.Clock()
 
 joueur = pygame.Surface((25, 25)) 
-joueur.fill(JAUNE) # Position du joueur x, y = 25, 100 # Vitesse du joueur vx, vy = 0, 0 # Gravité vers le bas donc positive GRAVITE = 2
+joueur.fill(JAUNE) 
+# Position du joueur 
+x, y = 25, 100 
+# Vitesse du joueur 
+vx, vy = 0, 0 
+# Gravité vers le bas donc positive 
+GRAVITE = 2
 
 mur = pygame.Surface((25, 25)) 
 mur.fill(VERT)
@@ -51,33 +61,29 @@ def bloque_sur_collision(niveau, old_pos, new_pos, vx, vy):
     collide_later = list() 
     blocks = get_neighbour_blocks(niveau, i, j) 
     for block in blocks:
-
         if not new_rect.colliderect(block):
             continue
-            dx_correction, dy_correction = compute_penetration(block, old_rect, new_rect) # Dans cette première phase, on n’ajuste que les pénétrations sur un # seul axe. if dx_correction == 0.0:
-            new_rect.top += dy_correction 
-            vy = 0.0
+        dx_correction, dy_correction = compute_penetration(block, old_rect, new_rect) # Dans cette première phase, on n’ajuste que les pénétrations sur un # seul axe. if dx_correction == 0.0:
+        new_rect.top += dy_correction 
+        vy = 0.0
 
-        elif dy_correction == 0.0:
+        if dy_correction == 0.0:
             new_rect.left += dx_correction 
             vx = 0.0
-
         else:
                 collide_later.append(block)
 
         # Deuxième phase. On teste à présent les distances de pénétrations pour # les blocks qui en possédaient sur les 2 axes. for block in collide_later:
+        dx_correction, dy_correction = compute_penetration(block, old_rect, new_rect) 
+        if dx_correction == dy_correction == 0.0:
+            # Finalement plus de pénétration. Le new_rect a bougé précédemment lors d’une résolution de collision continu
+            if abs(dx_correction) < abs(dy_correction):
+                # Faire la correction que sur l’axe X (plus bas) 
+                dy_correction = 0.0
 
-        dx_correction, dy_correction = compute_penetration(block, old_rect, new_rect) if dx_correction == dy_correction == 0.0:
-
-        # Finalement plus de pénétration. Le new_rect a bougé précédemment # lors d’une résolution de collision continue
-
-    if abs(dx_correction) < abs(dy_correction):
-        # Faire la correction que sur l’axe X (plus bas) 
-        dy_correction = 0.0
-
-    elif abs(dy_correction) < abs(dx_correction):
-        # Faire la correction que sur l’axe Y (plus bas) 
-        dx_correction = 0.0
+            elif abs(dy_correction) < abs(dx_correction):
+                # Faire la correction que sur l’axe Y (plus bas) 
+                dx_correction = 0.0
 
         if dy_correction != 0.0:
             new_rect.top += dy_correction 
@@ -105,18 +111,6 @@ def compute_penetration(block, old_rect, new_rect):
         dx_correction = block.right - new_rect.left
 
     return dx_correction, dy_correction
-
-screen = pygame.display.set_mode(1024*1080)                      # Définition de la taille de la fenêtre
-tiles = pygame.sprite.Group()                               # Création d'un groupe de sprites
-player = 5                                                  # Création d'un joueur 
-
-# for y, row in enumerate(game_map):                          # Création d'une boucle pour la création des tuiles
-#     for x, tile_type in enumerate(row):                     # Création d'une boucle pour la création des tuiles
-#         tile = Tile(x, y, tile_type)                        # Création d'une tuile
-#         tiles.add(tile)                                     # Ajout de la tuile au groupe de sprites
-#         if tile_type == 5:                                  # Si la tuile est de type 5, alors c'est le joueur
-#             player = Player(x, y)                           # Définition de la position du joueur
-
     # Boucle événementielle continuer = True while continuer:
 done = False                                                # Définition de la variable 'done' à False
 while not done:                                             # Boucle tant que 'done' est différent de True        
@@ -135,7 +129,10 @@ while not done:                                             # Boucle tant que 'd
         vx = (keys_pressed[pygame.K_d] - keys_pressed[pygame.K_q]) * 5 
         vy += pygame.GRAVITE 
         vy = min(20, vy) 
-        # vy ne peut pas dépasser 25 sinon effet tunnel… x += vx y += vy x, y, vx, vy = bloque_sur_collision(niveau, (old_x, old_y), (x, y), vx, vy)
+        # vy ne peut pas dépasser 25 sinon effet tunnel… 
+        x += vx 
+        y += vy 
+        x, y, vx, vy = bloque_sur_collision(niveau, (old_x, old_y), (x, y), vx, vy)
 
     screen.fill(BLEU_NUIT) 
     dessiner_niveau(screen, niveau) 
