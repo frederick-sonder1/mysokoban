@@ -140,3 +140,12 @@ while not done:                                             # Boucle tant que 'd
     pygame.display.flip()
 
 pygame.quit()
+
+# # “Théorème de la séparation des axes” 
+# [SAT]= 'img/382e3984326883c92cb8c3c93bc85ced.jpg'
+# # “Collision du joueur avec un mur” 
+# [pos in grid]: img/Keysb.jpg
+# # “Pénétration des rectangles.” 
+# [penetration]: pygame_collisions_img/penetration.png
+# # “Correction minimum”
+# [min correction]: pygame_collisions_img/minimum_correction.png 
